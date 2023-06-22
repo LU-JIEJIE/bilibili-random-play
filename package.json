@@ -1,0 +1,19 @@
+{
+  "name": "bilibili-random-play",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.16",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.5",
+    "vite-plugin-monkey": "^3.2.0"
+  },
+  "dependencies": {
+    "jquery": "^3.7.0"
+  }
+}
