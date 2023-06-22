@@ -10,7 +10,7 @@
 
 1.安装[Tampermonkey（油猴）](https://www.tampermonkey.net/)
 
-2.安装本脚本
+2.安装[本脚本]([bilibili-random-play (greasyfork.org)](https://greasyfork.org/zh-CN/scripts/469248-bilibili-random-play))
 
 ## 使用
 

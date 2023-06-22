@@ -12,7 +12,9 @@ export default defineConfig({
         match: ['https://www.bilibili.com/video/*'],
         version:'1.0',
         author:'lu-jiejie',
-        homepage:'https://github.com/LU-JIEJIE/bilibili-random-play'
+        homepage:'https://github.com/LU-JIEJIE/bilibili-random-play',
+        description:'为B站分P视频添加随机播放功能',
+        license:'MIT'
       },
     }),
   ],
