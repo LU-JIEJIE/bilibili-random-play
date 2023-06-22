@@ -5,7 +5,7 @@ import { NOT_LIST_TYPE_VIDEO } from './constant'
 
 
 
-declare function getEventListeners(el:Element):Record<string,ArrayLike<{
+declare function getEventListeners(el: Element): Record<string, ArrayLike<{
   useCapture: boolean;
   passive: boolean;
   once: boolean;
@@ -13,55 +13,66 @@ declare function getEventListeners(el:Element):Record<string,ArrayLike<{
   listener: EventListenerOrEventListenerObject;
 }>>
 
-declare global{
-  interface Window{
-    playNext:Function
-    bindVideoEvent:Function
-  }
-}
-
 const SET_TIMEOUT_TIME = 500
 let isRandom = 'false'
 let totalPage = 0
-let curPage = 0
 let curIndex = 0
 let randomList: number[] = []
 let videoList: HTMLAnchorElement[] = []
+let isHEVC: boolean = false
 
-async function init() {
-  [curPage, totalPage] = getPageInfo()
+function init() {
+  [, totalPage] = getPageInfo()
 
   if (totalPage === 0) {
     formatLog(NOT_LIST_TYPE_VIDEO)
     return
   }
 
-  // create random button
-  createRandomButton()
+
+
+  getIsHEVC()
 
   initVideoList()
 
-  isRandom = getLocalStorage('isRandom') || 'false'
-  if (isRandom === 'true') {
-    updateRandomButtonType(true)
-    handleRandomOn()
-  } else {
-    updateRandomButtonType(false)
-  }
-
-  window.playNext = playNext
-  window.bindVideoEvent = bindVideoEvent
 }
 
-function handleRandomOn(){
+function handleRandomOn() {
+  closeAutoPlay()
+  checkPlayerConfig()
   initRandomList()
   bindVideoEvent()
 }
 
-function handleRandomOff(){
+function handleRandomOff() {
 
 }
 
+function closeAutoPlay() {
+  const autoPlayButton = document.querySelector('#multi_page > div.head-con > div.head-right > span:nth-child(2) > span.switch-button') as HTMLSpanElement
+  if (autoPlayButton?.classList.contains('on')) {
+    autoPlayButton.click()
+  }
+}
+
+function getIsHEVC() {
+  setTimeout(() => {
+    const isHEVCInput = document.querySelector('div.bpx-player-ctrl-setting-codec input[value="0"]') as HTMLInputElement
+    if (isHEVCInput) {
+      isHEVC = isHEVCInput.checked || (document.querySelector('div.bpx-player-ctrl-setting-codec input[value="1"]') as HTMLInputElement).checked
+    } else {
+      getIsHEVC()
+    }
+  }, SET_TIMEOUT_TIME)
+}
+
+function checkPlayerConfig() {
+  if (isHEVC) {
+    isHEVC = false;
+    (document.querySelector('div.bpx-player-ctrl-setting-codec div.bui-area')!.querySelector('input[value="3"]') as HTMLInputElement).click()
+    location.reload()
+  }
+}
 
 function playNext(distance: number = 1) {
   curIndex = (curIndex + distance + totalPage) % randomList.length
@@ -73,15 +84,16 @@ function bindVideoEvent() {
   setTimeout(() => {
     const video = document.querySelector('div.bpx-player-video-wrap > video')
     if (video) {
-      video.addEventListener('ended', event=>{
+      video.addEventListener('ended', event => {
         event.stopImmediatePropagation()
         playNext()
       })
-    }else{
+    } else {
       bindVideoEvent()
     }
   }, SET_TIMEOUT_TIME)
 }
+
 
 function getPageInfo() {
   const pageInfoSpan = document.querySelector('span.cur-page')
@@ -90,13 +102,17 @@ function getPageInfo() {
   return pageInfoSpan.innerHTML.replace(/\(|\)/, '').split('/').map(item => parseInt(item))
 }
 
-function initVideoList(){
-    setTimeout(() => {
-      videoList = Array.from(document.querySelectorAll('ul.list-box > li > a > div.clickitem'))
-      if(videoList.length === 0){
-        initVideoList()
-      }
-    },SET_TIMEOUT_TIME)
+function initVideoList() {
+  setTimeout(() => {
+    videoList = Array.from(document.querySelectorAll('ul.list-box > li > a > div.clickitem'))
+    if (videoList.length === 0) {
+      initVideoList()
+    } else {
+      // create random button
+      // 插入按钮会导致页面重绘，需要在获取到资源并渲染完成页面后在执行
+      createRandomButton()
+    }
+  }, SET_TIMEOUT_TIME)
 }
 
 function createRandomButton() {
@@ -121,6 +137,14 @@ function createRandomButton() {
       handleRandomOff()
     }
   })
+
+  isRandom = getLocalStorage('isRandom') || 'false'
+  if (isRandom === 'true') {
+    updateRandomButtonType(true)
+    handleRandomOn()
+  } else {
+    updateRandomButtonType(false)
+  }
 }
 
 function updateRandomButtonType(on: boolean) {
@@ -134,17 +158,16 @@ function updateRandomButtonType(on: boolean) {
 
 
 function initRandomList() {
-  randomList = new Array(totalPage).fill(0).map((_, index) => index+1)
+  randomList = new Array(totalPage).fill(0).map((_, index) => index + 1)
   // shuffle
   for (let i = randomList.length - 1; i >= 0; i--) {
     const randomIndex = randomInt(0, i)
       ;[randomList[i], randomList[randomIndex]] = [randomList[randomIndex], randomList[i]]
   }
+  const [curPage] = getPageInfo()
   randomList.unshift(curPage)
   randomList.splice(randomList.indexOf(curPage), 1)
   curIndex = 0
 }
 
-(function () {
-  init()
-})()
+init()

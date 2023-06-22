@@ -7,9 +7,12 @@ export default defineConfig({
     monkey({
       entry: 'src/main.ts',
       userscript: {
-        icon: 'https://vitejs.dev/logo.svg',
+        icon: 'https://www.bilibili.com/favicon.ico',
         namespace: 'npm/vite-plugin-monkey',
-        match: ['https://www.bilibili.com/video/*','https://www.baidu.com/*'],
+        match: ['https://www.bilibili.com/video/*'],
+        version:'1.0',
+        author:'lu-jiejie',
+        homepage:'https://github.com/LU-JIEJIE/bilibili-random-play'
       },
     }),
   ],
